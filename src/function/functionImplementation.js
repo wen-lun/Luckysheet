@@ -2365,33 +2365,25 @@ const functionImplementation = {
                 }
             }
             else if(getObjType(data) == "object" && data.startCell != null){
-                if(data.coll > 1){
-                    return formula.error.v;
-                }
+                function handleCell(cell) {
+                    if (cell == null || isRealNull(cell.v)) {
+                        return 0;
+                    }
 
-                if(data.rowl > 1){
-                    var cellrange = formula.getcellrange(data.startCell);
-                    var str = cellrange.row[0];
-
-                    if(window.luckysheetCurrentRow < str || window.luckysheetCurrentRow > str + data.rowl - 1){
+                    if (!isRealNum(cell.v)) {
                         return formula.error.v;
                     }
 
-                    var cell = data.data[window.luckysheetCurrentRow - str][0];
-                }
-                else{
-                    var cell = data.data;
+                    return Math.floor(parseFloat(cell.v));
                 }
 
-                if(cell == null || isRealNull(cell.v)){
-                    return 0;
+                if (getObjType(data.data) == 'array') {
+                    return data.data.map(rows => {
+                        return rows.map(handleCell);
+                    })
                 }
 
-                if(!isRealNum(cell.v)){
-                    return formula.error.v;
-                }
-
-                return Math.floor(parseFloat(cell.v));
+                return handleCell(data.data);
             }
             else{
                 if(getObjType(data) == "boolean"){
